@@ -19,7 +19,7 @@ public class Dijkstra {
 	}
 
 	private static void runDijkstra(Node source) {
-		
+
 	}
 
 	private static void readInput(String filename) throws FileNotFoundException {
