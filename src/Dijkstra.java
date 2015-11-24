@@ -11,9 +11,15 @@ public class Dijkstra {
 	public static int noEdges;
 
 	public static void main(String[] args) throws FileNotFoundException {
+		/* read input from text file to set up graph */
 		readInput("datasets/input6.txt");
-		for(Node n: Graph) System.out.println("Node id:" + n.getId());
-		for(String s: edges.keySet()) System.out.println("dist from " + s + " is " + edges.get(s));
+		// start with node 0
+		Node source = Graph.get(0);
+		runDijkstra(source);
+	}
+
+	private static void runDijkstra(Node source) {
+		
 	}
 
 	private static void readInput(String filename) throws FileNotFoundException {
