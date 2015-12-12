@@ -13,10 +13,11 @@ public class Dijkstra {
 	public static void main(String[] args) throws FileNotFoundException {
 		/* read input from text file to set up graph */
 		readInput("datasets/input6.txt");
-		// start with node 0
-		Node source = Graph.get(0);
 		System.out.println("Hello world! I successfully read in data");
 		transformDataSet();
+		System.out.println("Hello world! I successfully set up graph. Running Dijkstra...");
+		// start with node 0
+		Node source = Graph.get(0);
 		runDijkstra(source);
 	}
 
@@ -24,7 +25,7 @@ public class Dijkstra {
 		for(Node n: Graph){
 			for(Node adj: n.adjList){
 				int edgeWeight = edges.get(""+n.id+adj.id);
-				n.realadjList.put(adj, edgeWeight);
+				n.neighbors.put(adj, edgeWeight);
 			}
 		}
 	}
@@ -51,18 +52,18 @@ public class Dijkstra {
 				nodes[i] = Integer.parseInt(node[i]);
 			Node node1 = Graph.get(nodes[0]);
 			Node node2 = Graph.get(nodes[1]);
-			node1.addEdge(node2);
-			node2.addEdge(node1);
+			node1.adjList.add(node2);
+			node2.adjList.add(node1);
 			int distance = compDistance(node1, node2);
-			String key1 = "" + node1.getId() + node2.getId();
-			String key2 = "" + node2.getId() + node1.getId();
+			String key1 = "" + node1.id + node2.id;
+			String key2 = "" + node2.id + node1.id;
 			edges.put(key1, distance);
 			edges.put(key2, distance);
 		}
 	}
 
 	private static int compDistance(Node node1, Node node2) {
-		return (int) Math.sqrt(Math.pow(node2.getxCoord() - node1.getxCoord(),
-				2) + Math.pow(node2.getyCoord() - node1.getyCoord(), 2));
+		return (int) Math.sqrt(Math.pow(node2.xCoord - node1.xCoord,
+				2) + Math.pow(node2.yCoord - node1.yCoord, 2));
 	}
 }
