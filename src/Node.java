@@ -1,10 +1,13 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
-public class Node {
-	private int id;
-	private int xCoord;
-	private int yCoord;
-	ArrayList<Node> adjList;
+public class Node implements Comparable<Node> {
+	public int id;
+	public int xCoord;
+	public int yCoord;
+	public ArrayList<Node> adjList;
+	public HashMap<Node,Integer> realadjList;
+	public int mindist = Integer.MAX_VALUE;
 
 	public int getId() {
 		return this.id;
@@ -27,5 +30,11 @@ public class Node {
 		this.xCoord = x;
 		this.yCoord = y;
 		this.adjList = new ArrayList<Node>();
+		this.realadjList = new HashMap<Node,Integer>();
+	}
+
+	@Override
+	public int compareTo(Node o) {
+		return 0;
 	}
 }

@@ -15,7 +15,18 @@ public class Dijkstra {
 		readInput("datasets/input6.txt");
 		// start with node 0
 		Node source = Graph.get(0);
+		System.out.println("Hello world! I successfully read in data");
+		transformDataSet();
 		runDijkstra(source);
+	}
+
+	private static void transformDataSet() {
+		for(Node n: Graph){
+			for(Node adj: n.adjList){
+				int edgeWeight = edges.get(""+n.id+adj.id);
+				n.realadjList.put(adj, edgeWeight);
+			}
+		}
 	}
 
 	private static void runDijkstra(Node source) {
