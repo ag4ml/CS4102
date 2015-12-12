@@ -2,10 +2,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 public class Dijkstra {
-	public static HashMap<String, Integer> edges = new HashMap<>();
+	public static HashMap<String, Double> edges = new HashMap<>();
 	public static ArrayList<Node> Graph = new ArrayList<Node>();
 	public static int noNodes;
 	public static int noEdges;
@@ -22,15 +23,31 @@ public class Dijkstra {
 	}
 
 	private static void transformDataSet() {
-		for(Node n: Graph){
-			for(Node adj: n.adjList){
-				int edgeWeight = edges.get(""+n.id+adj.id);
+		for (Node n : Graph) {
+			for (Node adj : n.adjList) {
+				double edgeWeight = edges.get("" + n.id + adj.id);
 				n.neighbors.put(adj, edgeWeight);
 			}
 		}
 	}
 
 	private static void runDijkstra(Node source) {
+		// init distance to infinity, except source (make that 0)
+		for (Node n : Graph) {
+			n.dist = (n.id == source.id) ? 0 : Integer.MAX_VALUE;
+			n.prev = (n.id == source.id) ? source : null;
+		}
+		PriorityQueue<Node> pq = new PriorityQueue<Node>(Graph.size());
+		pq.add(source);
+
+		while (!pq.isEmpty()) {
+			Node current = pq.poll();
+
+			for (Node neighbor : current.neighbors.keySet()) {
+
+			}
+
+		}
 
 	}
 
@@ -54,7 +71,7 @@ public class Dijkstra {
 			Node node2 = Graph.get(nodes[1]);
 			node1.adjList.add(node2);
 			node2.adjList.add(node1);
-			int distance = compDistance(node1, node2);
+			double distance = compDistance(node1, node2);
 			String key1 = "" + node1.id + node2.id;
 			String key2 = "" + node2.id + node1.id;
 			edges.put(key1, distance);
@@ -62,8 +79,8 @@ public class Dijkstra {
 		}
 	}
 
-	private static int compDistance(Node node1, Node node2) {
-		return (int) Math.sqrt(Math.pow(node2.xCoord - node1.xCoord,
-				2) + Math.pow(node2.yCoord - node1.yCoord, 2));
+	private static double compDistance(Node node1, Node node2) {
+		return Math.sqrt(Math.pow(node2.xCoord - node1.xCoord, 2)
+				+ Math.pow(node2.yCoord - node1.yCoord, 2));
 	}
 }
