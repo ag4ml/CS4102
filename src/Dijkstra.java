@@ -5,35 +5,83 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
+import org.jgrapht.util.FibonacciHeap;
+import org.jgrapht.util.FibonacciHeapNode;
+
 public class Dijkstra {
 	public static HashMap<String, Double> edges = new HashMap<>();
 	public static ArrayList<Node> Graph = new ArrayList<Node>();
 	public static int noNodes;
 	public static int noEdges;
+	public static HashMap<Node, FibonacciHeapNode<Node>> fibNodes;
 
 	public static void main(String[] args) throws FileNotFoundException {
 		/* read input from text file to set up graph */
-		readInput("datasets/input6.txt");
+		readInput("datasets/usa.txt");
 		// displayGraph();
 		// start with node 0
-		Node source = Graph.get(0);
-		runDijkstra(source);
-		printPath(source, Graph.get(5));
+		Node source = Graph.get(500);
+
+		double t1 = timeDijkstra(source);
+
+		double t2 = timeDijkstraFib(source);
+
+		printPath(source, Graph.get(10000));
+		System.out.println("Plain Dijkstra took: "+ t1);
+		System.out.println("Fibheap Dijkstra took: "+t2);
 
 	}
 
-	private static void runDijkstra(Node source) {
-		// init distance to infinity, except source (make that 0)
-		for (Node n : Graph) {
-			n.dist = (n.id == source.id) ? 0 : Integer.MAX_VALUE;
-			n.prev = (n.id == source.id) ? source : null;
+	private static double timeDijkstraFib(Node source) {
+		double start2 = System.currentTimeMillis();
+		for(int i=0; i<100; i+=1){
+			initFibNodes();
+			runDijkstraFibHeap(source);
 		}
+		double end2 = System.currentTimeMillis();
+		return (end2-start2)/100;
+	}
+
+	private static double timeDijkstra(Node source) {
+		double start1 = System.currentTimeMillis();
+		for (int i=0; i<100; i+=1){
+			runDijkstra(source);
+		}
+		double end1 = System.currentTimeMillis();
+		return (end1-start1)/100;
+	}
+
+	private static void initFibNodes() {
+		fibNodes = new HashMap<>();
+		for(Node n: Graph) fibNodes.put(n, new FibonacciHeapNode<Node>(n));		
+	}
+
+	private static void runDijkstraFibHeap(Node source) {
+		initGraph(source);
+		FibonacciHeap<Node> fibheap = new FibonacciHeap<Node>();
+		for(Node n: Graph) fibheap.insert(fibNodes.get(n), n.dist);
+		
+		while(!fibheap.isEmpty()){
+			Node current = fibheap.removeMin().getData();
+			for(Node neighbor: current.neighbors.keySet()){
+				double distviacurrent = current.dist + current.neighbors.get(neighbor);
+				if(distviacurrent < neighbor.dist){
+					neighbor.dist = distviacurrent;
+					neighbor.prev = current;
+					fibheap.decreaseKey(fibNodes.get(neighbor), neighbor.dist);
+				}
+			}
+			
+		}
+	}
+
+	private static void runDijkstra(Node source) {
+		initGraph(source);
 		PriorityQueue<Node> pq = new PriorityQueue<Node>(Graph.size());
 		pq.add(source);
 
 		while (!pq.isEmpty()) {
 			Node current = pq.poll();
-
 			for (Node neighbor : current.neighbors.keySet()) {
 				double distviacurrent = current.dist
 						+ current.neighbors.get(neighbor);
@@ -50,16 +98,27 @@ public class Dijkstra {
 
 	}
 
+	private static void initGraph(Node source) {
+		// init distance to infinity, except source (make that 0)
+		for (Node n : Graph) {
+			n.dist = (n.id == source.id) ? 0 : Double.MAX_VALUE;
+			n.prev = (n.id == source.id) ? source : null;
+		}
+	}
+
 	private static void printPath(Node source, Node target) {
 		String path = "" + target.id;
+		int count = 0;
 		Node prev = target.prev;
 		while (prev != source) {
 			path = prev.id + "->" + path;
 			prev = prev.prev;
+			count+=1;
 		}
 		path = source.id + "->" + path;
+		count+=1;
 		System.out.println(path);
-		System.out.println("Path distance: "+target.dist);
+		System.out.println("Path distance: " + target.dist + " Edges Traversed: "+ count);
 	}
 
 	private static void displayGraph() {
