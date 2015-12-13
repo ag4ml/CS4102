@@ -18,6 +18,19 @@ public class Dijkstra {
 		// start with node 0
 		Node source = Graph.get(0);
 		runDijkstra(source);
+		printPath(source, Graph.get(5));
+		
+	}
+
+	private static void printPath(Node source, Node target) {
+       String path = "" + target.id;
+       Node prev = target.prev;
+       while(prev!=source) {
+    	   path = prev.id + "->" + path;
+    	   prev = prev.prev;
+       }
+       path = source.id + "->" + path;
+       System.out.println(path);
 	}
 
 	private static void displayGraph() {
@@ -29,7 +42,7 @@ public class Dijkstra {
 
 		for (Node n : Graph) {
 			for (Node x : n.neighbors.keySet()) {
-				System.out.println(n.id + "  " + x.id);
+				System.out.println(n.id + "  " + x.id + " " +n.neighbors.get(x));
 			}
 		}
 
@@ -48,7 +61,13 @@ public class Dijkstra {
 			Node current = pq.poll();
 
 			for (Node neighbor : current.neighbors.keySet()) {
-
+				double distviacurrent = current.dist + current.neighbors.get(neighbor);
+				if(distviacurrent < neighbor.dist){
+					if(pq.contains(neighbor)) pq.remove(neighbor);
+					neighbor.dist = distviacurrent;
+					neighbor.prev = current;
+					pq.add(neighbor);
+				}
 			}
 
 		}
