@@ -59,6 +59,7 @@ public class Dijkstra {
 		}
 		path = source.id + "->" + path;
 		System.out.println(path);
+		System.out.println("Path distance: "+target.dist);
 	}
 
 	private static void displayGraph() {
