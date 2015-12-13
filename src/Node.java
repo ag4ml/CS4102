@@ -5,7 +5,6 @@ public class Node implements Comparable<Node> {
 	public int id; // how to identify node
 	public int xCoord;
 	public int yCoord;
-	public ArrayList<Node> adjList;
 	public HashMap<Node, Double> neighbors; // map of neighbors and how far they
 											// are
 	public double dist = Double.MAX_VALUE;
@@ -16,7 +15,6 @@ public class Node implements Comparable<Node> {
 		this.id = id;
 		this.xCoord = x;
 		this.yCoord = y;
-		this.adjList = new ArrayList<Node>();
 		this.neighbors = new HashMap<Node, Double>();
 	}
 
