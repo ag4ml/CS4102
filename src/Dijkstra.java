@@ -14,22 +14,32 @@ public class Dijkstra {
 	public static int noNodes;
 	public static int noEdges;
 	public static HashMap<Node, FibonacciHeapNode<Node>> fibNodes;
+	public static double[] dist;
 
 	public static void main(String[] args) throws FileNotFoundException {
 		/* read input from text file to set up graph */
 		readInput("datasets/usa.txt");
 		// displayGraph();
 		// start with node 0
-		Node source = Graph.get(500);
-
+		Node source = Graph.get(85000);
+		Node target = Graph.get(0);
 		double t1 = timeDijkstra(source);
 
-		double t2 = timeDijkstraFib(source);
+	//	double t2 = timeDijkstraFib(source);
 
-		printPath(source, Graph.get(10000));
+		double t3 = timeAStar(source,target);
+		
+		printPath(source, target, true);
 		System.out.println("Plain Dijkstra took: "+ t1);
-		System.out.println("Fibheap Dijkstra took: "+t2);
+////		System.out.println("Fibheap Dijkstra took: "+t2);
+		System.out.println("A* took: "+t3);
+	}
 
+	private static double timeAStar(Node source, Node target) {
+		double start3 = System.currentTimeMillis();
+		for(int i=0; i<100; i+=1) runAstar(source,target);
+		double end3 = System.currentTimeMillis();
+		return (end3-start3)/100;
 	}
 
 	private static double timeDijkstraFib(Node source) {
@@ -98,6 +108,35 @@ public class Dijkstra {
 
 	}
 
+	private static void runAstar(Node source, Node target) {
+		initGraph(source);
+		PriorityQueue<Node> pq = new PriorityQueue<Node>(Graph.size());
+		pq.add(source);
+		dist[source.id] =0;
+		
+		while (!pq.isEmpty()) {
+			Node current = pq.poll();
+			for (Node neighbor : current.neighbors.keySet()) {
+				double heuristic = heuristic(current,neighbor,target);
+				double distviacurrent = dist[current.id]
+						+ current.neighbors.get(neighbor);
+				if (distviacurrent + heuristic < neighbor.dist) {
+					if (pq.contains(neighbor))
+						pq.remove(neighbor);
+					neighbor.dist = distviacurrent+ heuristic;
+					dist[neighbor.id] = distviacurrent;
+					neighbor.prev = current;
+					pq.add(neighbor);
+				}
+			}
+
+		}
+		
+	}
+	private static double heuristic(Node current, Node neighbor, Node target) {
+		return compDistance(neighbor,target);
+	}
+
 	private static void initGraph(Node source) {
 		// init distance to infinity, except source (make that 0)
 		for (Node n : Graph) {
@@ -106,7 +145,8 @@ public class Dijkstra {
 		}
 	}
 
-	private static void printPath(Node source, Node target) {
+	private static void printPath(Node source, Node target, boolean b) {
+		if (b)for(Node n: Graph) n.dist = dist[n.id];
 		String path = "" + target.id;
 		int count = 0;
 		Node prev = target.prev;
@@ -161,6 +201,7 @@ public class Dijkstra {
 			node1.neighbors.put(node2, distance);
 			node2.neighbors.put(node1, distance);
 		}
+		dist = new double[noNodes];
 	}
 
 	private static double compDistance(Node node1, Node node2) {
