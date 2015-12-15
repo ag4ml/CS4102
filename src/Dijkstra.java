@@ -21,77 +21,78 @@ public class Dijkstra {
 		readInput("datasets/usa.txt");
 		// displayGraph();
 		// start with node 0
-		Node source = Graph.get(85000);
-		Node target = Graph.get(0);
-		double t1 = timeDijkstra(source);
-
-	//	double t2 = timeDijkstraFib(source);
-
-		double t3 = timeAStar(source,target);
+		Node source = Graph.get(2);
+		Node target = Graph.get(31000);
+		double t1 = timeDijkstra(source, target);
 		
+		double t2 = timeDijkstraFib(source, target);
+	//	printPath(source, target, false);
+		double t3 = timeAStar(source, target);
+
 		printPath(source, target, true);
-		System.out.println("Plain Dijkstra took: "+ t1);
-////		System.out.println("Fibheap Dijkstra took: "+t2);
-		System.out.println("A* took: "+t3);
+		System.out.println("Plain Dijkstra took: " + String.format("%.2f", t1/1000000)+ " milliseconds");
+		System.out.println("Fibheap Dijkstra took: "+ String.format("%.2f", t2/1000000) + " milliseconds");
+		System.out.println("A* took: " + String.format("%.2f", t3/1000000) + " milliseconds");
 	}
 
 	private static double timeAStar(Node source, Node target) {
-		double start3 = System.currentTimeMillis();
-		for(int i=0; i<100; i+=1) runAstar(source,target);
-		double end3 = System.currentTimeMillis();
-		return (end3-start3)/100;
+		double start3 = System.nanoTime();
+		for (int i = 0; i < 100; i += 1)runAstar(source, target);
+		double end3 = System.nanoTime();
+		return (end3 - start3) / 100;
 	}
 
-	private static double timeDijkstraFib(Node source) {
-		double start2 = System.currentTimeMillis();
-		for(int i=0; i<100; i+=1){
-			initFibNodes();
-			runDijkstraFibHeap(source);
-		}
-		double end2 = System.currentTimeMillis();
-		return (end2-start2)/100;
+	private static double timeDijkstraFib(Node source, Node target) {
+		double start2 = System.nanoTime();
+		for (int i = 0; i < 100; i += 1) runDijkstraFibHeap(source, target);
+		double end2 = System.nanoTime();
+		return (end2 - start2) / 100;
 	}
 
-	private static double timeDijkstra(Node source) {
-		double start1 = System.currentTimeMillis();
-		for (int i=0; i<100; i+=1){
-			runDijkstra(source);
-		}
-		double end1 = System.currentTimeMillis();
-		return (end1-start1)/100;
+	private static double timeDijkstra(Node source, Node target) {
+		double start1 = System.nanoTime();
+		for (int i = 0; i < 100; i += 1) runDijkstra(source, target);
+		double end1 = System.nanoTime();
+		return (end1 - start1) / 100;
 	}
 
 	private static void initFibNodes() {
 		fibNodes = new HashMap<>();
-		for(Node n: Graph) fibNodes.put(n, new FibonacciHeapNode<Node>(n));		
+		for (Node n : Graph)
+			fibNodes.put(n, new FibonacciHeapNode<Node>(n));
 	}
 
-	private static void runDijkstraFibHeap(Node source) {
+	private static void runDijkstraFibHeap(Node source, Node target) {
 		initGraph(source);
+		initFibNodes();
 		FibonacciHeap<Node> fibheap = new FibonacciHeap<Node>();
-		for(Node n: Graph) fibheap.insert(fibNodes.get(n), n.dist);
-		
-		while(!fibheap.isEmpty()){
+		for (Node n : Graph)
+			fibheap.insert(fibNodes.get(n), n.dist);
+
+		while (!fibheap.isEmpty()) {
 			Node current = fibheap.removeMin().getData();
-			for(Node neighbor: current.neighbors.keySet()){
-				double distviacurrent = current.dist + current.neighbors.get(neighbor);
-				if(distviacurrent < neighbor.dist){
+			if(current.id == target.id && target.dist!=Double.MAX_VALUE) return;
+			for (Node neighbor : current.neighbors.keySet()) {
+				double distviacurrent = current.dist
+						+ current.neighbors.get(neighbor);
+				if (distviacurrent < neighbor.dist) {
 					neighbor.dist = distviacurrent;
 					neighbor.prev = current;
 					fibheap.decreaseKey(fibNodes.get(neighbor), neighbor.dist);
 				}
 			}
-			
+
 		}
 	}
 
-	private static void runDijkstra(Node source) {
+	private static void runDijkstra(Node source, Node target) {
 		initGraph(source);
 		PriorityQueue<Node> pq = new PriorityQueue<Node>(Graph.size());
 		pq.add(source);
 
 		while (!pq.isEmpty()) {
 			Node current = pq.poll();
+			if(current.id == target.id && target.dist!=Double.MAX_VALUE)return;
 			for (Node neighbor : current.neighbors.keySet()) {
 				double distviacurrent = current.dist
 						+ current.neighbors.get(neighbor);
@@ -112,18 +113,19 @@ public class Dijkstra {
 		initGraph(source);
 		PriorityQueue<Node> pq = new PriorityQueue<Node>(Graph.size());
 		pq.add(source);
-		dist[source.id] =0;
-		
+		dist[source.id] = 0;
+
 		while (!pq.isEmpty()) {
 			Node current = pq.poll();
+			if(current.id == target.id && target.dist!=Double.MAX_VALUE)return;
 			for (Node neighbor : current.neighbors.keySet()) {
-				double heuristic = heuristic(current,neighbor,target);
+				double heuristic = heuristic(current, neighbor, target);
 				double distviacurrent = dist[current.id]
 						+ current.neighbors.get(neighbor);
 				if (distviacurrent + heuristic < neighbor.dist) {
 					if (pq.contains(neighbor))
 						pq.remove(neighbor);
-					neighbor.dist = distviacurrent+ heuristic;
+					neighbor.dist = distviacurrent + heuristic;
 					dist[neighbor.id] = distviacurrent;
 					neighbor.prev = current;
 					pq.add(neighbor);
@@ -131,10 +133,11 @@ public class Dijkstra {
 			}
 
 		}
-		
+
 	}
+
 	private static double heuristic(Node current, Node neighbor, Node target) {
-		return compDistance(neighbor,target);
+		return compDistance(neighbor, target);
 	}
 
 	private static void initGraph(Node source) {
@@ -146,19 +149,22 @@ public class Dijkstra {
 	}
 
 	private static void printPath(Node source, Node target, boolean b) {
-		if (b)for(Node n: Graph) n.dist = dist[n.id];
+		if (b)
+			for (Node n : Graph)
+				n.dist = dist[n.id];
 		String path = "" + target.id;
 		int count = 0;
 		Node prev = target.prev;
 		while (prev != source) {
 			path = prev.id + "->" + path;
 			prev = prev.prev;
-			count+=1;
+			count += 1;
 		}
 		path = source.id + "->" + path;
-		count+=1;
+		count += 1;
 		System.out.println(path);
-		System.out.println("Path distance: " + target.dist + " Edges Traversed: "+ count);
+		System.out.println("Path distance: " + String.format("%.2f", target.dist)
+				+ " Edges Traversed: " + count);
 	}
 
 	private static void displayGraph() {
@@ -182,7 +188,7 @@ public class Dijkstra {
 		ArrayList<Integer> val = new ArrayList<Integer>();
 		while (inputScanner.hasNextInt())
 			val.add(inputScanner.nextInt());
-
+		inputScanner.close();
 		noNodes = val.get(0);
 		noEdges = val.get(1);
 
